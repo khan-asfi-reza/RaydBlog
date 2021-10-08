@@ -43,6 +43,7 @@ jobs:
     - name: Run migrations
       env:
         SECRET_KEY: 69tgugtg%^fgJO&*&
+        ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
         DATABASE_ENGINE: django.db.backends.postgresql
         DATABASE_NAME: github_actions
         DATABASE_HOST: localhost
@@ -60,6 +61,7 @@ jobs:
     - name: Run Tests
       env:
         SECRET_KEY: 69tgugtg%^fgJO&*&
+        ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
         DATABASE_ENGINE: django.db.backends.postgresql
         DATABASE_NAME: github_actions
         DATABASE_HOST: localhost
