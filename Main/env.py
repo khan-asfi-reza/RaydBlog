@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
+from dotenv import load
 import os
 
-load_dotenv()
+load()
 
 IS_PROD = int(os.environ.get("IS_PROD", 0)) == 1
 DB_NAME = os.environ.get("DB_NAME", "DB_NAME")
