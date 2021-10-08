@@ -44,12 +44,12 @@ jobs:
       env:
         SECRET_KEY: 69tgugtg%^fgJO&*&
         ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
-        DATABASE_ENGINE: django.db.backends.postgresql
-        DATABASE_NAME: github_actions
-        DATABASE_HOST: localhost
-        DATABASE_PORT: 5432
-        DATABASE_USER: postgres
-        DATABASE_PASSWORD: postgres
+        DB_ENGINE: django.db.backends.postgresql
+        DB_NAME: github_actions
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
         IS_PROD: 0
         WHITELIST_URL: localhost:3000
         FEND_FP_URL: localhost
@@ -62,12 +62,12 @@ jobs:
       env:
         SECRET_KEY: 69tgugtg%^fgJO&*&
         ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
-        DATABASE_ENGINE: django.db.backends.postgresql
-        DATABASE_NAME: github_actions
-        DATABASE_HOST: localhost
-        DATABASE_PORT: 5432
-        DATABASE_USER: postgres
-        DATABASE_PASSWORD: postgres
+        DB_ENGINE: django.db.backends.postgresql
+        DB_NAME: github_actions
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
         IS_PROD: 0
         WHITELIST_URL: localhost:3000
         FEND_FP_URL: localhost
