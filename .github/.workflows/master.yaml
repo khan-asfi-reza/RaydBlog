@@ -1,0 +1,77 @@
+name: Master
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: psycopg2 prerequisites
+      run: sudo apt-get install libpq-dev
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run migrations
+      env:
+        SECRET_KEY: 69tgugtg%^fgJO&*&
+        DATABASE_ENGINE: django.db.backends.postgresql
+        DATABASE_NAME: github_actions
+        DATABASE_HOST: localhost
+        DATABASE_PORT: 5432
+        DATABASE_USER: postgres
+        DATABASE_PASSWORD: postgres
+        IS_PROD: 0
+        WHITELIST_URL: localhost:3000
+        FEND_FP_URL: localhost
+        EMAIL_HOST_USER: email@gmail.com
+        EMAIL_HOST_PASSWORD: PASSWORD
+        TEST_EMAIL: khanasfireza10@gmail.com
+        USE_AWS: 0
+      run: python manage.py migrate
+    - name: Run Tests
+      env:
+        SECRET_KEY: 69tgugtg%^fgJO&*&
+          DATABASE_ENGINE: django.db.backends.postgresql
+          DATABASE_NAME: github_actions
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          IS_PROD: 0
+          WHITELIST_URL: localhost:3000
+          FEND_FP_URL: localhost
+          EMAIL_HOST_USER: email@gmail.com
+          EMAIL_HOST_PASSWORD: PASSWORD
+          TEST_EMAIL: khanasfireza10@gmail.com
+          USE_AWS: 0
+      run: |
+        python manage.py test

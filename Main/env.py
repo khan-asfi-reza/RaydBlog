@@ -3,7 +3,7 @@ import os
 
 load_dotenv()
 
-IS_PROD = int(os.environ.get("IS_PROD", 0))
+IS_PROD = int(os.environ.get("IS_PROD", 0)) == 1
 DB_NAME = os.environ.get("DB_NAME", "DB_NAME")
 DB_HOST = os.environ.get("DB_HOST", "DB_HOST")
 DB_PORT = os.environ.get("DB_PORT", "DB_PORT")
@@ -15,11 +15,12 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 WHITELIST_URL = os.environ.get("WHITELIST_URL", "http:://localhost:3000")
 TEST_EMAIL = os.environ.get("TEST_EMAIL", "")
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_ID", "")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', "")
+USE_AWS = int(os.environ.get("USE_AWS", 0)) == 1
 
-
+if USE_AWS:
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_ID", "")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', "")
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True

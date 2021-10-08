@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+<div id="app">
+
+</div>
+
+</body>
+
+<script>
+
+const app = document.getElementById("app");
+const func = async () => {}
+
+let result = {};
+const dataset = [];
+
+func()
+    .then(async ()=>{
+         const jwt = "http://127.0.0.1:8000/api/auth/token"
+
+         const jwtdata = await fetch(jwt, {
+            body: JSON.stringify({
+                username: "username",
+                password: "MyPassword"
+            }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: "POST",
+            mode: "same-origin",
+
+        });
+        result = await jwtdata.json();
+
+    }).then(async ()=>{
+        const url = "http://127.0.0.1:8000/api/users/profiles";
+        const data = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + result.access,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        const data1 = await data.json();
+        dataset.push(data1)
+        console.log(data1)
+
+})
+
+</script>
+
+
+</html>
