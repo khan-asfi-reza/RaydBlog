@@ -20,10 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$bkt&r3q#t*wix#uyfrj!khf0o+j-_$8=pfgc+$r!1+7giouat'
-ENCRYPTION_KEY = b'G7Kh5fJ9FsNZA5F43FdRQQJtehMKx4Xico9J6haHBM8='
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = IS_PROD == 0
+DEBUG = IS_PROD is False
 
 ALLOWED_HOSTS = []
 
@@ -38,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    "storages",
     'django_user_agents',
     'Apps.Users',
     'Apps.Authentication',
@@ -143,12 +142,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# S3 BUCKETS CONFIG
+
+MEDIA_URL = f"/media/"
+MEDIA_ROOT = BASE_DIR / "Assets/Media"
+
+if USE_AWS:
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_REGION_NAME = "ap-southeast-1"
+
+    MEDIAFILES_LOCATION = 'Media'
+    STATICFILES_LOCATION = 'Static'
+
+    DEFAULT_FILE_STORAGE = 'Main.storages.MediaStorage'
+    STATICFILES_STORAGE = 'Main.storages.StaticStorage'
+
 
 STATICFILES_DIRS = [
     BASE_DIR / "Assets/Static",
@@ -156,21 +171,9 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "Assets/StaticRoot"
 
-# S3 BUCKETS CONFIG
-
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-AWS_S3_REGION_NAME = "ap-southeast-1"
-
-MEDIAFILES_LOCATION = 'Media'
-STATICFILES_LOCATION = 'Static'
-
-DEFAULT_FILE_STORAGE = 'Main.storages.MediaStorage'
-STATICFILES_STORAGE = 'Main.storages.StaticStorage'
-
-MEDIA_URL = f"/media/"
-MEDIA_ROOT = BASE_DIR / "Assets/Media"
 FILE_UPLOAD_TEMP_DIR = BASE_DIR / "Assets" / "__temp__"
+
+STATIC_URL = '/static/'
 
 # CORS_ALLOWED_ORIGINS = [
 #     WHITELIST_URL
@@ -180,4 +183,4 @@ FILE_UPLOAD_TEMP_DIR = BASE_DIR / "Assets" / "__temp__"
 #     WHITELIST_URL
 # )
 
-CORS_ORIGIN_ALLOW_ALL = IS_PROD == 0
+CORS_ORIGIN_ALLOW_ALL = IS_PROD is False
