@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+  backend:
+    build: .
+    volumes:
+      - .:/backend
+    ports:
+      - "8000:8000"
+    container_name: backend
+    command: python backend/manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - pgdb

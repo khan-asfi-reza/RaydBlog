@@ -2,8 +2,10 @@ from datetime import datetime
 from django.core.files import File
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from utils.model_utils import file_location
+from utils.model_utils import file_location, generate_random_image
 
 User = get_user_model()
 

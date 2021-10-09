@@ -55,6 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Main.urls'
 
+
 AUTH_USER_MODEL = "Users.User"
 
 AUTHENTICATION_BACKENDS = ["Apps.Users.backend.UserAuthenticateBackend"]
