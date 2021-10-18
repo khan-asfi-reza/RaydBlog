@@ -123,14 +123,14 @@ class TestFollow(APITestCase):
     def test_user_profile_get_permission(self):
         # Test User Profile Get Expect Unauthorized
         user_1_obj, user_1 = create_test_user()
-        url = reverse("profile-get-edit", kwargs={"user_id": user_1.id})
+        url = reverse("profile-get", kwargs={"id": user_1.id})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, 200)
 
     def test_user_profile_edit_permission(self):
         # Test Edit Profile Except Unauthorized
         user_1_obj, user_1 = create_test_user()
-        url = reverse("profile-get-edit", kwargs={"user_id": user_1.id})
+        url = reverse("profile-edit", kwargs={"user_id": user_1.id})
         res = self.client.put(
             url,
             {
@@ -146,14 +146,14 @@ class TestUserProfile(APITestCase):
     def test_user_get(self):
         # Test User To Get Profile
         user_obj, user = create_test_user()
-        url = reverse("profile-get-edit", kwargs={"user_id": user.id})
+        url = reverse("profile-get", kwargs={"id": user.id})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
 
     def test_user_profile_edit(self):
         # Test User to edit his profile
         user_obj, user = create_test_user()
-        url = reverse("profile-get-edit", kwargs={"user_id": user.id})
+        url = reverse("profile-edit", kwargs={"user_id": user.id})
         res = self.client.put(
             url,
             {

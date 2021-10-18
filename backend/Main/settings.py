@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_user_agents',
     'Apps.Users',
     'Apps.Authentication',
+    "Apps.Core"
 ]
 
 MIDDLEWARE = [

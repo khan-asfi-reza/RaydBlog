@@ -1,10 +1,12 @@
 from rest_framework import status
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.mixins import UpdateModelMixin, RetrieveModelMixin, DestroyModelMixin
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView, \
+    UpdateAPIView
+from rest_framework.mixins import CreateModelMixin
 
-a = RetrieveUpdateAPIView
+from Apps.Core.permissions.is_post_authenticated import IsPostAndAuthenticated, IsEditAuthenticatedOrTrue
 
 
 class CreateAPI(APIView):
@@ -30,6 +32,11 @@ class CreateAPI(APIView):
         )
 
 
+class CoreUpdateAPIView(UpdateAPIView):
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
 class CoreRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
@@ -40,3 +47,21 @@ class CoreRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+class UserCreateListAPIView(ListCreateAPIView):
+    """
+    Must have User Field in model
+    """
+    permission_classes = [IsPostAndAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class UserRetrieveUpdateDeleteAPIView(RetrieveUpdateDestroyAPIView):
+    """
+    Must have User Field in Model
+    """
+    permission_classes = [IsEditAuthenticatedOrTrue]
+

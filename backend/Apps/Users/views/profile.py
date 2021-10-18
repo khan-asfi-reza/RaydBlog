@@ -1,53 +1,27 @@
 from django.http import Http404
-from django.shortcuts import render
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from Apps.Core.views.generics import CoreRetrieveUpdateAPIView, CreateAPI
-from Apps.Users.models import Profile
-from Apps.Users.models.profile import Follower
-from Apps.Users.permissions.get_or_is_user import GetOrIsUserOwner
-from Apps.Users.serializers.profiles import ProfileSerializer, UserProfileSerializer, FollowerSerializer, \
+
+from Apps.Core.permissions.is_post_authenticated import IsUserOwnerAndPut
+from Apps.Core.views.generics import CreateAPI, CoreUpdateAPIView
+from Apps.Users.models.profile import Follower, Profile
+from Apps.Users.serializers.follower import FollowerSerializer, \
     FollowingSerializer, PerformFollowUnfollowSerializer
+from Apps.Users.serializers.profile import ProfileSerializer
 
 
-class UserProfileRetrieveUpdateView(CoreRetrieveUpdateAPIView):
+class ProfileUpdateView(CoreUpdateAPIView):
     """
-    PUT / PATCH / GET Method
-    PUT Method request body
-    {
-        "user",
-        "profile_picture",
-        "bio",
-        "website",
-        "gender",
-        "follower_status"
-    }
-
-    Response same as request body
-    """
-    permission_classes = [GetOrIsUserOwner]
-    serializer_class = ProfileSerializer
-    lookup_field = "user_id"
-    queryset = Profile.objects.all()
-
-
-class UserProfileListView(ListAPIView):
-    """
-        GET Method
-        GET Method request response
+        PUT Method
+        PUT Method request body
         {
-            "user",
-            "profile_picture",
-            "bio",
-            "website",
-            "gender",
-            "follower_status"
+
         }
     """
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserProfileSerializer
-    queryset = Profile.objects.get_queryset()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsUserOwnerAndPut]
+    lookup_field = "user_id"
+    queryset = Profile.objects.queryset_all()
 
 
 class FollowerListView(ListAPIView):
@@ -67,7 +41,8 @@ class FollowerListView(ListAPIView):
         followee_id = self.kwargs.get("followee_id")
 
         if followee_id:
-            return Follower.objects.filter(followee=self.kwargs.get("followee_id"))
+            return Follower.objects.filter(followee=self.kwargs.get("followee_id"),
+                                           follower__is_active=True).order_by("id")
 
         return Http404
 
@@ -86,10 +61,11 @@ class FollowingListView(ListAPIView):
     lookup_field = "follower_id"
 
     def get_queryset(self):
-        followee_id = self.kwargs.get("follower_id")
+        follower_id = self.kwargs.get("follower_id")
 
-        if followee_id:
-            return Follower.objects.filter(followee=self.kwargs.get("follower_id"))
+        if follower_id:
+            return Follower.objects.filter(follower=self.kwargs.get("follower_id"),
+                                           followee__is_active=True).order_by("id")
 
         return Http404
 
@@ -106,5 +82,3 @@ class FollowUnfollowCreateView(CreateAPI):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = PerformFollowUnfollowSerializer
-
-
