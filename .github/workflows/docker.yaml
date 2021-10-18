@@ -34,7 +34,7 @@ jobs:
         EMAIL_HOST_PASSWORD: PASSWORD
         TEST_EMAIL: khanasfireza10@gmail.com
         USE_AWS: 0
-      run: docker-compose run python backend/manage.py migrate
+      run: docker-compose run backend python backend/manage.py migrate
     - name: Run Test
       env:
         SECRET_KEY: 69tgugtg%^fgJO&*&
@@ -52,4 +52,4 @@ jobs:
         EMAIL_HOST_PASSWORD: PASSWORD
         TEST_EMAIL: khanasfireza10@gmail.com
         USE_AWS: 0
-      run: docker-compose run python backend/manage.py test backend
+      run: docker-compose run backend python backend/manage.py test backend
