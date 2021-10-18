@@ -3,9 +3,6 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
 
 from utils.model_utils import has_chars, username_validator
 
@@ -176,3 +173,4 @@ class User(AbstractUser):
 
     class Meta:
         unique_together = ["phone_number", "phone_number_ccode"]
+        ordering = ["-id"]

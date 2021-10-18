@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from Apps.Users.models.profile import Profile, UserFollowStatus, Follower, create_follow, create_unfollow
-from Apps.Users.serializers.users import UserRetrieveSerializer
+from Apps.Users.models.profile import Follower, create_follow, create_unfollow
+from Apps.Users.serializers.users import UserProfileShortSerializer
 
 User = get_user_model()
 
@@ -9,61 +9,11 @@ FOLLOW_ACTION = 1
 UNFOLLOW_ACTION = 1
 
 
-class UserFollowStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserFollowStatus
-        fields = ["user", "follower", "following"]
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    """
-        Profile Serializer is only for Profile Creation and Public Profile Viewing
-    """
-    follower_status = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ["user", "profile_picture", "bio", "website", "gender", "follower_status"]
-
-    @staticmethod
-    def get_follower_status(obj):
-        try:
-            return UserFollowStatusSerializer(instance=UserFollowStatus.objects.get(user=obj.user))
-        except UserFollowStatus.DoesNotExist:
-            return {}
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    """
-        For User and Profile Serializer
-    """
-    user = UserRetrieveSerializer(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ["user", "profile_picture", "profile_complete"]
-
-
-class ProfilePictureSerializer(serializers.ModelSerializer):
-    """
-        For Profile Picture only
-    """
-    user_id = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ["profile_picture", "user_id"]
-
-    @staticmethod
-    def get_user_id(obj):
-        return obj.user.id
-
-
 class FollowerSerializer(serializers.ModelSerializer):
     """
     User's Followers list
     """
-    follower = UserProfileSerializer(read_only=True)
+    follower = UserProfileShortSerializer(read_only=True)
 
     class Meta:
         model = Follower
@@ -74,7 +24,7 @@ class FollowingSerializer(serializers.ModelSerializer):
     """
     User's Following List
     """
-    followee = UserProfileSerializer(read_only=True)
+    followee = UserProfileShortSerializer(read_only=True)
 
     class Meta:
         model = Follower

@@ -1,10 +1,9 @@
-from datetime import datetime
 from django.core.files import File
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
+
+from Apps.Core.models.managers import UserForeignKeyManager
 from utils.model_utils import file_location, generate_random_image
 
 User = get_user_model()
@@ -12,9 +11,23 @@ User = get_user_model()
 GENDER_CHOICE = [(1, "Male"), (2, "Female"), (3, "Prefer Not To Say"), (4, "Non Binary")]
 
 
-class ProfileManager(models.Manager):
+class ProfileManager(UserForeignKeyManager):
+
+    # Get queryset all
     def all(self):
-        return self.filter(user__is_active=True).order_by("user_id")
+        return self.queryset_all()
+
+    # Increase Number of Reactions
+    def increase_reactions(self, user):
+        profile = self.filter(user=user).first()
+        profile.reactions += 1
+        profile.save()
+
+    # Decrease number of reactions
+    def decrease_reactions(self, user):
+        profile = self.filter(user=user).first()
+        profile.reactions -= 1
+        profile.save()
 
 
 class Profile(models.Model):
@@ -36,6 +49,8 @@ class Profile(models.Model):
         blank=True,
         null=True
     )
+    # Profile Reactions
+    reactions = models.PositiveBigIntegerField(default=0)
     # Is profile complete
     profile_complete: bool = models.BooleanField(default=False)
 
@@ -43,6 +58,14 @@ class Profile(models.Model):
 
     def __str__(self) -> str:
         return self.user.name
+
+    def increase_reactions(self):
+        self.reactions += 1
+        self.save()
+
+    def decrement_reactions(self):
+        self.reactions -= 1
+        self.save()
 
     class Meta:
         ordering = ("user_id",)

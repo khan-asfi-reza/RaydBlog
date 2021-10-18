@@ -1,0 +1,55 @@
+name: DockerCI
+
+on:
+  push:
+    branches: [ development ]
+  pull_request:
+    branches: [ development ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    - name: Run migrations
+      env:
+        SECRET_KEY: 69tgugtg%^fgJO&*&
+        ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
+        DATABASE_ENGINE: django.db.backends.postgresql
+        DB_NAME: github_actions
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        IS_PROD: 0
+        WHITELIST_URL: localhost:3000
+        FEND_FP_URL: localhost
+        EMAIL_HOST_USER: email@gmail.com
+        EMAIL_HOST_PASSWORD: PASSWORD
+        TEST_EMAIL: khanasfireza10@gmail.com
+        USE_AWS: 0
+      run: docker-compose run python backend/manage.py migrate
+    - name: Run Test
+      env:
+        SECRET_KEY: 69tgugtg%^fgJO&*&
+        ENCRYPTION_KEY: AAAh5fGGGsNZA5F43XXXXQJtehMKx4Xico9J6haHBM8=
+        DATABASE_ENGINE: django.db.backends.postgresql
+        DB_NAME: github_actions
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        IS_PROD: 0
+        WHITELIST_URL: localhost:3000
+        FEND_FP_URL: localhost
+        EMAIL_HOST_USER: email@gmail.com
+        EMAIL_HOST_PASSWORD: PASSWORD
+        TEST_EMAIL: khanasfireza10@gmail.com
+        USE_AWS: 0
+      run: docker-compose run python backend/manage.py test backend

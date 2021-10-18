@@ -1,15 +1,16 @@
 from rest_framework import serializers
-
 from django.contrib.auth import get_user_model
+from Apps.Users.serializers.profile import ProfilePictureSerializer, ProfileSerializer, UserFollowStatusSerializer
 
 User = get_user_model()
 
 
-class UserOnlySerializer(serializers.ModelSerializer):
+class UserDetailsSerializer(serializers.ModelSerializer):
     """
     This Serializer is only for user creation and user to see his own data,
     This serializer may not be used for public data transfer
     """
+
     class Meta:
         model = User
         fields = ['id',
@@ -41,18 +42,34 @@ class UserOnlySerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserRetrieveSerializer(serializers.ModelSerializer):
+class UserProfileDetailsSerializer(serializers.ModelSerializer):
     """
-    This serializer will be used for public data transfer
+        User Profile Detail Serializer
     """
+    profile = ProfileSerializer(read_only=True)
+    follower_status = UserFollowStatusSerializer(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
+        fields = ["id", "username", "name", "profile", "follower_status"]
         model = User
-        fields = [
-            'id', "username", 'name'
-        ]
 
     @staticmethod
-    def get_name(obj: User):
+    def get_name(obj):
+        return obj.name
+
+
+class UserProfileShortSerializer(serializers.ModelSerializer):
+    """
+        User With Profile Picture
+    """
+    profile = ProfilePictureSerializer(read_only=True)
+    name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        fields = ["id", "username", "name", "profile"]
+        model = User
+
+    @staticmethod
+    def get_name(obj):
         return obj.name
