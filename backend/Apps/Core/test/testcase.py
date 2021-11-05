@@ -286,4 +286,4 @@ class TestCoreAPIWithoutAuth(APITestCase):
                                                        context={"request": request})
         if serializer.is_valid():
             data = serializer.save()
-            self.assertEqual(data["request_type"], 1)
+            self.assertEqual(data["reaction_type"], 1)
