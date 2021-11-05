@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from Apps.Core.models.abstract import AbstractModel, ReactionAbstractModel
+from Apps.Core.models.abstract import AbstractModel
 from Apps.Core.models.managers import UserForeignKeyManager
 from Apps.Core.models.block_manager import ReactionManager
 from utils.model_utils import file_location
@@ -90,6 +90,12 @@ class BlockPost(BlockCommentAbstractModel):
     def is_shared(self):
         return self.parent is not None
 
+    def save(self, *args, **kwargs):
+        if self.parent and self.parent.parent:
+            self.parent = self.parent.parent
+
+        super(BlockPost, self).save(*args, **kwargs)
+
 
 class BlockPostImage(AbstractModel):
     user = models.ForeignKey(to=User,
@@ -143,6 +149,39 @@ Block Reaction Model
 Block Content Comment Reaction Model
 
 """
+
+REACTION_MAX_NUMBER = 3
+
+
+class ReactionAbstractModel(AbstractModel):
+    """
+    0 - Null
+    1 - Heart
+    2 - Wow
+    3 - Funny
+    """
+    REACTION_TYPE = [
+        (
+            1, "Heart"
+        ),
+        (
+            2, "Wow"
+        ),
+        (
+            3, "Funny"
+        )
+    ]
+    # User / Author
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, verbose_name="Reactor")
+    # Reaction Type
+    reaction_type = models.IntegerField(choices=REACTION_TYPE, default=1)
+
+    objects = UserForeignKeyManager()
+
+    class Meta:
+        abstract = True
+
+        ordering = ["-created"]
 
 
 class BlockReaction(ReactionAbstractModel):

@@ -1,6 +1,9 @@
+import random
+
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from Apps.Core.models.blocks import *
+from Apps.Core.serializers.block import BlockPostReactionCreateSerializer
 from Apps.Users.models import Profile
 from Apps.Users.test.test_utils import create_test_user, APIAuthClient
 from Apps.Users.serializers.users import UserProfileShortSerializer
@@ -82,7 +85,8 @@ class ModelTestCase(APITestCase):
         )
         self.assertEqual(post.user.id, user.id)
         # Test Post Reaction
-        reaction = BlockReaction.objects.add_reaction(post, user, 1)
+        reaction, number_of_reactions = BlockReaction.objects.add_reaction(post, user, 1)
+        self.assertEqual(number_of_reactions, 1)
         self.assertEqual(reaction.reaction_type, 1)
         self.assertEqual(post.reactions, 1)
         self.assertEqual(Profile.objects.get(user=user).reactions, 1)
@@ -138,7 +142,7 @@ class ModelTestCase(APITestCase):
     def test_user_new_profile_serializer(self):
         user_obj, user = create_test_user()
         serializer = UserProfileShortSerializer(instance=user)
-        self.assertEqual(1, 1)
+        self.assertNotEqual(serializer.data, None)
 
 
 class TestCoreAPI(APITestCase):
@@ -189,3 +193,97 @@ class TestCoreAPI(APITestCase):
         # Test Delete
         res = self.client.delete(url, format="json")
         self.assertEqual(res.status_code, 204)
+
+    def test_block_reaction(self):
+        user_obj, user = create_test_user()
+        post = BlockPost.objects.create(
+            text="TEXT {}".format("Text 1"),
+            user=user
+        )
+        # Test Reaction Create
+        url = reverse("block-reaction-create")
+        res = self.client.post(url, {"parent": post.id, "reaction_type": 1})
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.data["reactions"], 1)
+        # Test Reaction Delete
+        res = self.client.post(url, {"parent": post.id, "reaction_type": 0})
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.data["reactions"], 0)
+
+    def test_block_reaction_api_list(self):
+        # Loop Create user
+        user_obj, post_user = create_test_user()
+        post = BlockPost.objects.create(
+            text="TEXT {}".format("Text 2"),
+            user=post_user
+        )
+
+        for i in range(15):
+            user_obj, user = create_test_user()
+            BlockReaction.objects.create(
+                block_post=post,
+                user=user,
+                reaction_type=random.randrange(1, 3)
+            )
+
+        post_2 = BlockPost.objects.create(
+            text="TEXT {}".format("Text 3"),
+            user=post_user
+        )
+        BlockReaction.objects.create(
+            block_post=post_2,
+            user=post_user,
+            reaction_type=random.randrange(1, 3)
+        )
+
+        url = reverse("block-reaction-list", kwargs={"block_post": post.id})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.data["results"]), 15)
+
+
+class TestCoreAPIWithoutAuth(APITestCase):
+    def test_block_rud(self):
+        """
+        Test Block Retrieve Update Delete
+        """
+        url = reverse("block-create")
+        id_list = []
+        user_obj, user = create_test_user()
+
+        for i in range(5):
+            post = BlockPost.objects.create(
+                text="TEXT {}".format(i),
+                user=user
+            )
+            id_list.append(post.id)
+
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        # Test Retrieve
+        url = reverse("block-edit-retrieve-delete", kwargs={"id": id_list[-2]})
+        res = self.client.get(url, format="json")
+        self.assertEqual(res.status_code, 200)
+        # Test Update
+        res = self.client.put(url, {"text": "Hello World"}, format="json")
+        self.assertEqual(res.status_code, 401)
+        # Test Delete
+        res = self.client.delete(url, format="json")
+        self.assertEqual(res.status_code, 401)
+
+    def test_block_reaction_serializer(self):
+        user_obj, user_1 = create_test_user()
+
+        post = BlockPost.objects.create(
+            text="TEXT {}".format("Text 1"),
+            user=user_1
+        )
+
+        class request:
+            user = user_1
+
+        serializer = BlockPostReactionCreateSerializer(data={"parent": post.id, "reaction_type": 1},
+                                                       context={"request": request})
+        if serializer.is_valid():
+            data = serializer.save()
+            self.assertEqual(data["reaction_type"], 1)
