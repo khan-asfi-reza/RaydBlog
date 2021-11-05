@@ -1,6 +1,10 @@
-from Apps.Core.models import BlockPost
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
+
+from Apps.Core.models import BlockPost, BlockReaction
 from Apps.Core.permissions.is_post_authenticated import IsPostAndAuthenticated
-from Apps.Core.serializers.block import BlockCreateEditSerializer
+from Apps.Core.serializers.block import BlockCreateEditSerializer, ParentReactionCreateSerializer, \
+    BlockReactionListSerializer
 from Apps.Core.views.generics import UserCreateListAPIView, UserRetrieveUpdateDeleteAPIView
 
 
@@ -26,3 +30,30 @@ class BlockUpdateRetrieveDeleteAPI(UserRetrieveUpdateDeleteAPIView):
 
 
 block_retrieve_edit_delete_view = BlockUpdateRetrieveDeleteAPI.as_view()
+
+
+class BlockReactionCreateAPI(CreateAPIView):
+    """
+    Create Reaction Of a Post
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = ParentReactionCreateSerializer
+    queryset = BlockReaction.objects.get_queryset()
+
+
+block_reaction_create_api_view = BlockReactionCreateAPI.as_view()
+
+
+class BlockReactionListAPI(ListAPIView):
+    """
+    List of Reactions
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = BlockReactionListSerializer
+    lookup_field = "block_post"
+
+    def get_queryset(self):
+        return BlockReaction.objects.filter(block_post=self.kwargs.get("block_post"))
+
+
+block_reaction_list_api_view = BlockReactionListAPI.as_view()

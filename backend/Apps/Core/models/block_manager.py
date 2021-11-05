@@ -24,7 +24,7 @@ class ReactionManager(models.Manager):
         sync_to_async(Profile.objects.increase_reactions(user))
         # Increase Post Reactions
         sync_to_async(parent.increase_reactions())
-        return reaction_obj
+        return reaction_obj, parent.reactions
 
     # Delete Reaction
     def delete_reaction(self, parent, user, ):
@@ -39,3 +39,13 @@ class ReactionManager(models.Manager):
         sync_to_async(Profile.objects.decrease_reactions(user))
         # Decrease Post Reactions
         sync_to_async(parent.decrease_reactions())
+
+        return None, parent.reactions
+
+    # Create Reaction
+    def create_reaction(self, parent, user, reaction_type):
+        if reaction_type == 0:
+            return self.delete_reaction(parent, user)
+
+        else:
+            return self.add_reaction(parent, user, reaction_type)
