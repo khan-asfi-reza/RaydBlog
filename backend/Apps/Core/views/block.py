@@ -1,10 +1,10 @@
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from Apps.Core.models import BlockPost, BlockReaction
+from Apps.Core.models import BlockPost, BlockReaction, BlockComment
 from Apps.Core.permissions.is_post_authenticated import IsPostAndAuthenticated
 from Apps.Core.serializers.block import BlockCreateEditSerializer, ParentReactionCreateSerializer, \
-    BlockReactionListSerializer
+    BlockReactionListSerializer, BlockCommentSerializer
 from Apps.Core.views.generics import UserCreateListAPIView, UserRetrieveUpdateDeleteAPIView
 
 
@@ -57,3 +57,43 @@ class BlockReactionListAPI(ListAPIView):
 
 
 block_reaction_list_api_view = BlockReactionListAPI.as_view()
+
+
+class BlockCommentListParentsCreateAPI(UserCreateListAPIView):
+    """
+    Block Comment List Create [Only Parents List]
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = BlockCommentSerializer
+    queryset = BlockComment.objects.filter(parent=None)
+    lookup_field = "block_post"
+
+
+block_comment_list_parents_create_api_view = BlockCommentListParentsCreateAPI.as_view()
+
+
+class BlockCommentChildListAPI(ListAPIView):
+    """
+    Block Comment List Child List
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = BlockCommentSerializer
+    lookup_field = "parent"
+
+    def get_queryset(self):
+        return BlockComment.objects.filter(parent=self.kwargs.get("parent"))
+
+
+block_comment_child_list_api = BlockCommentChildListAPI.as_view()
+
+
+class BlockCommentUpdateDeleteAPI(UserRetrieveUpdateDeleteAPIView):
+    """
+        Block Update, Retrieve, Delete View
+    """
+    serializer_class = BlockCommentSerializer
+    queryset = BlockComment.objects.get_queryset()
+    lookup_field = "id"
+
+
+block_comment_rud_api_view = BlockCommentUpdateDeleteAPI.as_view()

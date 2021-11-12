@@ -114,3 +114,17 @@ class BlockReactionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockReaction
         fields = ["id", "block_post", "user", "reaction_type"]
+
+
+class BlockCommentSerializer(serializers.ModelSerializer):
+    """
+        User Comment List Serializer
+    """
+    user: UserProfileShortSerializer = UserProfileShortSerializer(read_only=True)
+
+    class Meta:
+        model = BlockComment
+        fields = [
+            "id", "user", "block_post", "text", "parent", "reactions"
+        ]
+        read_only_fields = ["id", "reactions"]
