@@ -98,6 +98,7 @@ class BlockPost(BlockCommentAbstractModel):
 
 
 class BlockPostImage(AbstractModel):
+    # Owner User
     user = models.ForeignKey(to=User,
                              on_delete=models.CASCADE,
                              verbose_name="Block Post Image Author")

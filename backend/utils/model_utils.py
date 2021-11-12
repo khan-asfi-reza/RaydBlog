@@ -5,22 +5,29 @@ import time
 import urllib.request
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-
 import cairosvg
 from PIL import Image
 from cairosvg import svg2png
 from django.core.files import File
-
 from Main import settings
 import re
 
 
+# User Name Validation Function, checks if username is correct or not
+# Valid format :- Username can contain letters and characters along with underscore(_)
+# Cannot be digit or start with _ or -
 def username_validator(username: str):
+    from Main.username_blacklist import blacklisted_usernames
+
     if username[0] == "_" or username[0] == "-":
         return False
 
     if username.isdigit():
         return False
+
+    if username == any(blacklisted_usernames):
+        return False
+
     rx = "^[A-Za-z0-9_]*$"
 
     return bool(re.match(rx, username))
@@ -49,8 +56,6 @@ def is_email(email):
 def compress(image) -> File:
     extension = image.name.split(".")[-1]
 
-    print()
-
     if extension == "svg":
         __byte = BytesIO()
         svg2png(bytestring=image, write_to=__byte)
@@ -77,7 +82,7 @@ def create_random_length_number(length: int = 10) -> int:
     return random.randrange((10 ** length) - 1)
 
 
-def generate_random_image(sprite, seed):
+def generate_random_image(*args):
     url = f"https://avatars.dicebear.com/api/avataaars/{create_random_text(10)}.svg"
     url = urllib.request.urlopen(url)
     # Created Temporary File

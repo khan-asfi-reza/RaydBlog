@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from utils.model_utils import generate_random_image
+from utils.random_avatar import random_avatar
 from .user import User
 from .profile import Profile, GENDER_CHOICE
 
@@ -18,7 +19,7 @@ def profile_post_save(sender, instance, created, **kwargs):
         if not instance.profile_picture:
             # Get Gender Text
             gender = GENDER_CHOICE[instance.gender - 1][1].lower() if instance.gender else "RANDOM"
-            img, filename = generate_random_image(gender, "image")
+            img, filename = random_avatar(gender)
             # Save Image
             instance.profile_picture.save(filename, img)
             instance.save()
