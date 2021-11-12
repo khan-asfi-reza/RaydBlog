@@ -241,6 +241,50 @@ class TestCoreAPI(APITestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(res.data["results"]), 15)
 
+    @staticmethod
+    def create_post():
+        user_obj, test_user = create_test_user()
+        post = BlockPost.objects.create(
+            text="TEXT {}".format("Text 123"),
+            user=test_user
+        )
+        return post.id
+
+    def create_comments(self, post):
+        url = reverse("block-comment-parent-create-list", kwargs={"block_post": post})
+        res = self.client.post(url, {
+            "text": "TEXT",
+            "block_post": post
+        })
+        _id = res.data["id"]
+        res = self.client.post(
+            url,
+            {
+                "text": "PARENT CHILD",
+                "block_post": post,
+                "parent": _id
+            }
+        )
+        self.assertEqual(res.status_code, 201)
+
+    def test_block_comment_create_api(self):
+        post = self.create_post()
+        self.create_comments(post)
+
+    def test_block_parent_child_create_api(self):
+        post = self.create_post()
+        self.create_comments(post)
+
+    def test_block_comment_list_api(self):
+        post = self.create_post()
+
+        for x in range(10):
+            self.create_comments(post)
+
+        url = reverse("block-comment-parent-create-list", kwargs={"block_post": post})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
 
 class TestCoreAPIWithoutAuth(APITestCase):
     def test_block_rud(self):
